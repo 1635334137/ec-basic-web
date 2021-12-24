@@ -1,4 +1,4 @@
-service要有一个model的概念
+service层要有一个model的概念
 因为不能直接把DO透传给前端
 这里设计的model才是真正意义上SpringMVC中Model（业务逻辑交互的概念）的概念
 
