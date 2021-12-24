@@ -1,0 +1,4 @@
+response定义了通用的返回格式
+这个error包用于处理status为fail的情况，即错误处理
+解决思路：
+当status:fail时，data定义成固定的错误码格式（errorCode,errorMsg），前端就能处理好错误的情况
