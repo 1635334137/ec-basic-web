@@ -16,6 +16,8 @@ import java.util.Map;
 //所以定义一个Controller基类，放置公共方法。让其他controller继承基类
 public class BaseController {
 
+    public static final String CONTENT_TYPE_FORMED="application/x-www-form-urlencoded";
+
     //定义exceptionhandler解决未被controller层吸收的exception
     //防止异常抛出到容器Tomcat，让容器来处理异常信息。不利于前端处理
     //controller是业务处理的最后一道关卡，controller的异常被处理掉了，在返回到前端时用户的体验感会好些
