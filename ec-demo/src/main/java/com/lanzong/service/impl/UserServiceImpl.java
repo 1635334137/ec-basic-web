@@ -79,6 +79,7 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(EmBusinessError.USER_LOGIN_FAIL);
         }
 
+        //这里返回Model是把model存储到session中，以供后面使用
         return userModel;
     }
 

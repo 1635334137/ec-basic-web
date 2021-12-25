@@ -7,12 +7,10 @@ import com.lanzong.response.CommonReturnType;
 import com.lanzong.service.UserService;
 import com.lanzong.service.model.UserModel;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tomcat.util.security.MD5Encoder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -56,7 +54,7 @@ public class UserController extends BaseController{
         this.httpServletRequest.getSession().setAttribute("IS_LOGIN",true);
         this.httpServletRequest.getSession().setAttribute("LOGIN_USER",userModel);
 
-        return CommonReturnType.create(null);
+        return CommonReturnType.create(null);//是否传参数要看前端是否需要数据，在前端钩子方法success里可以获取到数据
 
     }
 

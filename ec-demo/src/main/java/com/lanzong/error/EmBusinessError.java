@@ -19,7 +19,7 @@ public enum EmBusinessError implements CommonError{
 
     //20000开头为用户信息相关错误定义
     USER_NOT_EXIST(20001,"用户不存在"),
-    USER_LOGIN_FAIL(20002,"用户手机号或密码不正确");//不能提示得太明显，否则容易受到攻击
+    USER_LOGIN_FAIL(20002,"用户手机号或密码不正确");//不能提示得太明显，否则容易受到针对攻击，破解一个字段比破解两个字段容易
 
     private int errCode;
     private String errMsg;

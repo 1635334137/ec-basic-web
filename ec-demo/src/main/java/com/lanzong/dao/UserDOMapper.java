@@ -37,6 +37,7 @@ public interface UserDOMapper {
      */
     UserDO selectByPrimaryKey(Integer id);
 
+    //通过手机号查找用户
     UserDO selectByTelphone(String telphone);
 
     /**
