@@ -4,11 +4,16 @@ import com.lanzong.dao.UserDOMapper;
 import com.lanzong.dao.UserPasswordDOMapper;
 import com.lanzong.dataobject.UserDO;
 import com.lanzong.dataobject.UserPasswordDO;
+import com.lanzong.error.BusinessException;
+import com.lanzong.error.EmBusinessError;
 import com.lanzong.service.UserService;
 import com.lanzong.service.model.UserModel;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -27,6 +32,56 @@ public class UserServiceImpl implements UserService {
         }
         UserPasswordDO userPasswordDO = userPasswordDOMapper.selectByUserId(userDO.getId());
         return convertFromDataObject(userDO, userPasswordDO);
+    }
+
+    //访问权限：public 的方法才起作用。@Transactional 注解应该只被应用到 public 方法上，这是由 Spring AOP 的本质决定的。
+    @Override
+    @Transactional//声明式事务：将标签放置在需要进行事务管理的方法上，而不是放在所有接口实现类上：只读的接口就不需要事务管理，由于配置了@Transactional就需要AOP拦截及事务的处理，可能影响系统性能。
+    public void register(UserModel userModel) throws BusinessException {
+        if(userModel == null){
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
+        }
+        if(StringUtils.isEmpty(userModel.getName())
+                || userModel.getGender() == null
+                || userModel.getAge() == null
+                || StringUtils.isEmpty(userModel.getTelphone())){
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
+        }
+
+        //实现model->dataobject方法
+        //需要在同一事务中
+        UserDO userDO = convertFromModel(userModel);
+
+        try {
+            //使用insertSelective和insert的区别：insertSelective在用户没有传递参数时，使用数据库默认的参数【如果数据库不设置默认参数会报错】，具体可以看SQL
+            userDOMapper.insertSelective(userDO);
+        }catch (DuplicateKeyException e){
+            //DuplicateKeyException为主键冲突异常，也就是设置了telphone唯一索引后，如果还使用同样的手机号注册，则系统会抛出该异常
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"手机号已重复注册");
+        }
+
+        userModel.setId(userDO.getId());//直接get是获取不到ID的，需要在mapper.xml的SQL中配置keyProperty="id" useGeneratedKeys="true" 参数意思可以百度了解
+        UserPasswordDO userPasswordDO = convertPasswordFromModel(userModel);
+        userPasswordDOMapper.insertSelective(userPasswordDO);
+    }
+
+    private UserPasswordDO convertPasswordFromModel(UserModel userModel){
+        if(userModel == null){
+            return null;
+        }
+        UserPasswordDO userPasswordDO = new UserPasswordDO();
+        userPasswordDO.setEncrptPassword(userModel.getEncrptPassword());
+        userPasswordDO.setUserId(userModel.getId());
+        return userPasswordDO;
+    }
+
+    private UserDO convertFromModel(UserModel userModel){
+        if(userModel == null){
+            return null;
+        }
+        UserDO userDO = new UserDO();
+        BeanUtils.copyProperties(userModel,userDO);
+        return userDO;
     }
 
     //把userDO和userpasswordDO组合成为业务需要的userModel
