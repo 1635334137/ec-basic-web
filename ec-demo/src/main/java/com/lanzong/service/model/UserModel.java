@@ -1,15 +1,27 @@
 package com.lanzong.service.model;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 public class UserModel {
     private Integer id;
+    @NotBlank(message = "用户名不能为空") //复杂校验可以通过@Pattern(regexp = )正则表达式校验
     private String name;
+    @NotNull(message = "性别不能不填写")
     private Integer gender;
+    @NotNull(message = "年龄不能不填写")
+    @Min(value = 0,message = "年龄必须大于0")
+    @Max(value = 150,message = "年龄必须小于150岁")
     private Integer age;
-    private String telphone;
+    @NotBlank(message = "手机号不能为空")
+    private String telphone;//这里很有意思，idea会提示不符合驼峰式命名的变量，划绿色波浪线
     private String registerMode;
     private String thirdPartyId;
 
-    private String encrptPassword;
+    @NotBlank(message = "密码不能为空")
+    private String encrptPassword;//这里的绿色波浪线则是拼写错误，encrypt才是把什么..加密,少了一个y
 
     public String getEncrptPassword() {
         return encrptPassword;
