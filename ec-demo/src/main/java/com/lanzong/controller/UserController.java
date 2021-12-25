@@ -1,12 +1,12 @@
 package com.lanzong.controller;
 
-import com.alibaba.druid.util.StringUtils;
 import com.lanzong.controller.viewobject.UserVO;
 import com.lanzong.error.BusinessException;
 import com.lanzong.error.EmBusinessError;
 import com.lanzong.response.CommonReturnType;
 import com.lanzong.service.UserService;
 import com.lanzong.service.model.UserModel;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.security.MD5Encoder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +37,28 @@ public class UserController extends BaseController{
     //实际上经过Spring的包装，它的本质是一个proxy，让用户可以在自己的线程处理自己的request
     @Autowired
     private HttpServletRequest httpServletRequest;
+
+    //用户登录接口
+    @RequestMapping(value = "/login",method = {RequestMethod.POST},consumes = {CONTENT_TYPE_FORMED})
+    @ResponseBody
+    public CommonReturnType login(@RequestParam(name = "telphone")String telphone,
+                                  @RequestParam(name = "password")String password) throws BusinessException, NoSuchAlgorithmException {
+
+        //入参校验
+        if(StringUtils.isEmpty(telphone)||StringUtils.isEmpty(password)){
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
+        }
+
+        //用户登录服务，用来校验用户登录是否合法
+        UserModel userModel = userService.validateLogin(telphone, this.EncodeByMd5(password));
+
+        //将登录凭证加入到用户登录成功的session内，这里情况是假设用户是单点登录，不做分布式的session共享。
+        this.httpServletRequest.getSession().setAttribute("IS_LOGIN",true);
+        this.httpServletRequest.getSession().setAttribute("LOGIN_USER",userModel);
+
+        return CommonReturnType.create(null);
+
+    }
 
     //用户注册接口
     @RequestMapping(value = "/register",method = {RequestMethod.POST},consumes = {CONTENT_TYPE_FORMED})
