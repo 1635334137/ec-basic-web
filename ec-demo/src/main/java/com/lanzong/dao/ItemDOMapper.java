@@ -2,6 +2,7 @@ package com.lanzong.dao;
 
 import com.lanzong.dataobject.ItemDO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -56,4 +57,6 @@ public interface ItemDOMapper {
      * @mbg.generated Mon Dec 27 21:23:13 CST 2021
      */
     int updateByPrimaryKey(ItemDO record);
+
+    int increaseSales(@Param("id")Integer id,@Param("amount")Integer amount);
 }
