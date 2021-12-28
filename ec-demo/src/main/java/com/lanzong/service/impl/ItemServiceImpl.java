@@ -7,7 +7,9 @@ import com.lanzong.dataobject.ItemStockDO;
 import com.lanzong.error.BusinessException;
 import com.lanzong.error.EmBusinessError;
 import com.lanzong.service.ItemService;
+import com.lanzong.service.PromoService;
 import com.lanzong.service.model.ItemModel;
+import com.lanzong.service.model.PromoModel;
 import com.lanzong.validator.ValidationResult;
 import com.lanzong.validator.ValidatorImpl;
 import org.springframework.beans.BeanUtils;
@@ -30,6 +32,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Autowired
     private ItemStockDOMapper itemStockDOMapper;
+
+    @Autowired
+    private PromoService promoService;
 
     @Transactional
     @Override
@@ -89,9 +94,16 @@ public class ItemServiceImpl implements ItemService {
         if(itemDO == null){
             return null;
         }
+        //获取库存数量
         ItemStockDO itemStockDO = itemStockDOMapper.selectByItemId(itemDO.getId());
-
+        //将dataobject->model
         ItemModel itemModel = convertModelFromDataObject(itemDO,itemStockDO);
+
+        //获取活动商品（秒杀功能）
+        PromoModel promoModel = promoService.getPromoByItemId(itemModel.getId());
+        if (promoModel != null && promoModel.getStatus().intValue() != 3) {
+            itemModel.setPromoModel(promoModel);
+        }
         return itemModel;
     }
 
